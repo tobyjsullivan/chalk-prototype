@@ -1,25 +1,46 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
 
+interface AppState {
+  formula: string,
+}
+
 class App extends Component {
+  state = {
+    varName: 'var1',
+    formula: 'SUM(4,6)',
+  }
+
+  handleVarNameChanged = (varName: string) => {
+    this.setState({varName});
+  }
+
+  handleFormulaChanged = (formula: string) => {
+    this.setState({formula});
+  }
+
   render() {
+    const {varName, formula} = this.state;
+
     return (
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
+        <h1 className="App-title">Chalk</h1>
+        <div className="App-console">
           <p>
-            Edit <code>src/App.tsx</code> and save to reload.
+            <input
+              className="App-var_name_input"
+              type="text"
+              defaultValue={varName}
+              onChange={e => this.handleVarNameChanged(e.target.value)} />
+            :&nbsp;
+            <input
+              className="App-formula_input"
+              type="text"
+              defaultValue={formula}
+              onChange={e => this.handleFormulaChanged(e.target.value)} />
           </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
+          <p>> error: not implemented</p>
+        </div>
       </div>
     );
   }
