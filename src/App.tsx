@@ -20,7 +20,7 @@ interface ApiResult {
   },
 }
 
-function execute(formula: string): Promise<number | string> {
+function execute(formula: string): Promise<number | string | null> {
   return axios.post(API_URL, {
     formula,
   }).then((resp) => {
@@ -31,7 +31,8 @@ function execute(formula: string): Promise<number | string> {
     }
 
     if (!payload.result) {
-      throw 'expected result.';
+      // Empty result
+      return null;
     }
 
     switch (payload.result.type) {
@@ -46,8 +47,8 @@ function execute(formula: string): Promise<number | string> {
 class App extends Component {
   state = {
     varName: 'var1',
-    formula: 'SUM(4,6)',
-    result: 'error: not implemented',
+    formula: '',
+    result: null,
   }
 
   handleVarNameChanged = (varName: string) => {
@@ -55,7 +56,7 @@ class App extends Component {
   }
 
   handleFormulaChanged = (formula: string) => {
-    this.setState({formula, result: 'executing...'});
+    this.setState({formula, result: null});
 
     execute(formula).then((result) => {
       this.setState({result});
@@ -79,7 +80,7 @@ class App extends Component {
               defaultValue={formula}
               onChange={e => this.handleFormulaChanged(e.target.value)} />
           </p>
-          <p>&gt; {result}</p>
+          <p>&gt; {result || ''}</p>
         </div>
       </div>
     );
