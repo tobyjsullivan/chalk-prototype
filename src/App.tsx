@@ -3,7 +3,7 @@ import axios from 'axios';
 import './App.css';
 import { number } from 'prop-types';
 
-const API_URL = 'https://6chzxaw355.execute-api.ap-southeast-2.amazonaws.com/alpha/execute';
+const API_URL = 'http://localhost:8080/execute';
 
 interface AppState {
   formula: string,
