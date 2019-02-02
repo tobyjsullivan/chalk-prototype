@@ -1,87 +1,56 @@
 import React, { Component } from 'react';
-import axios from 'axios';
-import './App.css';
-import { number } from 'prop-types';
+import Widget from './Widget';
+import {List, Map} from 'immutable';
 
-const API_URL = 'http://localhost:8080/execute';
+import './App.css';
+
+const DEFAULT_FORMULA = 'SUM(1, 2, 3)';
 
 interface AppState {
-  formula: string,
+  variables: List<Variable>;
+  nextVarNum: number;
 }
 
-interface ApiResult {
-  error: string,
-  result?: {
-    type: 'number';
-    numberValue: number;
-  } | {
-    type: 'string',
-    stringValue: string;
-  },
+interface Variable {
+  varName: string;
+  formula: string;
 }
 
-function execute(formula: string): Promise<number | string | null> {
-  return axios.post(API_URL, {
-    formula,
-  }).then((resp) => {
-    const payload: ApiResult = resp.data;
-
-    if (payload.error) {
-      throw payload.error;
-    }
-
-    if (!payload.result) {
-      // Empty result
-      return null;
-    }
-
-    switch (payload.result.type) {
-    case 'number':
-      return payload.result.numberValue;
-    case 'string':
-      return payload.result.stringValue;
-    }
-  });
-}
-
-class App extends Component {
+class App extends Component<{}, AppState> {
   state = {
-    varName: 'var1',
-    formula: '',
-    result: null,
+    variables: List(),
+    nextVarNum: 1,
   }
 
-  handleVarNameChanged = (varName: string) => {
-    this.setState({varName});
-  }
+  onAdd() {
+    console.log('onAdd() executing...');
+    this.setState((prev) => {
+      const varName = `var${prev.nextVarNum}`;
+      const newVar = {varName, formula: DEFAULT_FORMULA};
 
-  handleFormulaChanged = (formula: string) => {
-    this.setState({formula, result: null});
-
-    execute(formula).then((result) => {
-      this.setState({result});
-    }).catch((e) => {
-      this.setState({result: `error: ${e}`});
+      return {
+        variables: prev.variables.insert(0, newVar),
+        nextVarNum: prev.nextVarNum + 1,
+      };
     });
   }
 
   render() {
-    const {varName, formula, result} = this.state;
+    const {variables} = this.state;
+
+    const widgets = variables.map((v) => (
+      <Widget
+        key={v.varName}
+        varName={v.varName}
+        formula={v.formula} />
+    )).toArray();
+    console.log('Widgets: %o', widgets);
 
     return (
       <div className="App">
         <h1 className="App-title">Chalk</h1>
-        <div className="App-console">
-          <p>
-            {varName}:&nbsp;
-            <input
-              className="App-formula_input"
-              type="text"
-              defaultValue={formula}
-              onChange={e => this.handleFormulaChanged(e.target.value)} />
-          </p>
-          <p>&gt; {result || ''}</p>
-        </div>
+        <a onClick={() => this.onAdd()} href="#">Add +</a>
+        {widgets}
       </div>
     );
   }

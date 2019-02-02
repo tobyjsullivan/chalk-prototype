@@ -1,0 +1,46 @@
+.Widget {
+  max-width: 350px;
+  margin: auto;
+  border: 2px #999 solid;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.Widget-var_name {
+  background-color: #999;
+  color: #000;
+  padding: 4px;
+}
+
+.Widget-formula_window {
+  background: #4B5059;
+}
+
+.Widget-formula_input {
+  border: 0;
+  padding: 4px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.Widget-result_window {
+  padding: 4px;
+  min-height: 36px;
+  box-sizing: border-box;
+}
+
+.Widget > .Widget-formula_window {
+  display: none;
+}
+
+.Widget--editing > .Widget-formula_window {
+  display: block;
+}
+
+.Widget--editing > .Widget-result_window {
+  display: none;
+}
