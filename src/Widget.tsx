@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import enhanceWithClickOutside from 'react-click-outside';
+import {Map} from 'immutable';
 
 import './Widget.css';
 
-const API_URL = 'http://localhost:8080';
+const API_URL = 'http://192.168.1.5:8080';
 
 interface PropsType {
   formula: string,
@@ -59,16 +60,19 @@ class Widget extends Component<PropsType, StateType> {
     });
   }
 
-  handleFormulaInputKeyDown = (keyCode: number) => {
+  handleFormulaInputKeyDown = (e: React.KeyboardEvent) => {
     // 13 => Enter
     // 27 => Escape
-    if (keyCode == 13 || keyCode == 27) {
+    if (e.keyCode == 13 || e.keyCode == 27) {
+      e.preventDefault();
       this.stopEditing();
     }
   }
 
+  handleFormulaInputBlur = this.stopEditing;
+
   handleFormulaChanged = (formula: string) => {
-    this.setState({formula, result: null});
+    this.setState({formula: cleanFormula(formula), result: null});
   }
 
   handleResultWindowClicked = () => {
@@ -97,7 +101,8 @@ class Widget extends Component<PropsType, StateType> {
             className="Widget-formula_input"
             type="text"
             defaultValue={formula}
-            onKeyDown={e => this.handleFormulaInputKeyDown(e.keyCode)}
+            onBlur={this.handleFormulaInputBlur.bind(this)}
+            onKeyDown={this.handleFormulaInputKeyDown.bind(this)}
             onChange={e => this.handleFormulaChanged(e.target.value)} />
         </div>
         <div className="Widget-result_window" onClick={this.handleResultWindowClicked}>
@@ -148,6 +153,15 @@ function execute(formula: string): Promise<number | string | null> {
       return payload.result.stringValue;
     }
   });
+}
+
+const CHAR_REPLACEMENTS = Map({
+  '“': '"',
+  '”': '"',
+});
+
+function cleanFormula(formula: string): string {
+  return CHAR_REPLACEMENTS.reduce((f, replacement, needle) => f.replace(needle, replacement), formula);
 }
 
 export default enhanceWithClickOutside(Widget);

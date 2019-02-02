@@ -4,6 +4,11 @@ import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
+// Allow click-outside to work on iOS.
+if ('ontouchstart' in document.documentElement) {
+  document.body.style.cursor = 'pointer';
+}
+
 ReactDOM.render(<App />, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
