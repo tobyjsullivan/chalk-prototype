@@ -4,7 +4,7 @@ import {List, Map} from 'immutable';
 
 import './App.css';
 
-const DEFAULT_FORMULA = 'SUM(1, 2, 3)';
+const DEFAULT_FORMULA = '1';
 
 interface AppState {
   variables: List<Variable>;

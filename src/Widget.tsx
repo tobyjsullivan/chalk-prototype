@@ -30,6 +30,8 @@ class Widget extends Component<PropsType, StateType> {
     }
   }
 
+  input: HTMLInputElement | null = null;
+
   componentDidMount() {
     this.handleFormulaChanged(this.state.formula);
   }
@@ -38,11 +40,19 @@ class Widget extends Component<PropsType, StateType> {
     this.setState({varName});
   }
 
+  startEditing() {
+    this.setState({editing: true}, () => this.input ? this.input.focus() : {});
+  }
+
+  stopEditing() {
+    this.setState({editing: false});
+  }
+
   handleFormulaInputKeyDown = (keyCode: number) => {
     // 13 => Enter
     // 27 => Escape
     if (keyCode == 13 || keyCode == 27) {
-      this.setState({editing: false});
+      this.stopEditing();
     }
   }
 
@@ -57,11 +67,11 @@ class Widget extends Component<PropsType, StateType> {
   }
 
   handleResultWindowClicked = () => {
-    this.setState({editing: true});
+    this.startEditing();
   }
 
   handleClickOutside() {
-    this.setState({editing: false});
+    this.stopEditing();
   }
 
   render() {
@@ -76,6 +86,7 @@ class Widget extends Component<PropsType, StateType> {
         </div>
         <div className="Widget-formula_window">
           <input
+            ref={(input) => {this.input = input}}
             className="Widget-formula_input"
             type="text"
             defaultValue={formula}
