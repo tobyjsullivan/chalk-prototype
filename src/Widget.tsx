@@ -88,13 +88,13 @@ class Widget extends Component<PropsType, StateType> {
   render() {
     const {editing, varName, formula, result} = this.state;
 
-    const widgetClass = `Widget ${editing ? 'Widget--editing' : ''}`;
-
-    return (
-      <div className={widgetClass}>
-        <div className="Widget-var_name">
-          {varName}
+    let display = (
+      <div className="Widget-result_window" onClick={this.handleResultWindowClicked}>
+          {result || ''}
         </div>
+    );
+    if (editing) {
+      display = (
         <div className="Widget-formula_window">
           <input
             ref={(input) => {this.input = input}}
@@ -105,9 +105,15 @@ class Widget extends Component<PropsType, StateType> {
             onKeyDown={this.handleFormulaInputKeyDown.bind(this)}
             onChange={e => this.handleFormulaChanged(e.target.value)} />
         </div>
-        <div className="Widget-result_window" onClick={this.handleResultWindowClicked}>
-          {result || ''}
+      );
+    }
+
+    return (
+      <div className="Widget">
+        <div className="Widget-var_name">
+          {varName}
         </div>
+        {display}
       </div>
     );
   }

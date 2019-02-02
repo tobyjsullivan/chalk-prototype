@@ -14,6 +14,7 @@
 }
 
 .Widget-formula_window {
+  font-family: 'Courier New', Courier, monospace;
   background: #4B5059;
 }
 
@@ -31,16 +32,4 @@
   padding: 4px;
   min-height: 36px;
   box-sizing: border-box;
-}
-
-.Widget > .Widget-formula_window {
-  display: none;
-}
-
-.Widget--editing > .Widget-formula_window {
-  display: block;
-}
-
-.Widget--editing > .Widget-result_window {
-  display: none;
 }
