@@ -4,7 +4,7 @@ import enhanceWithClickOutside from 'react-click-outside';
 
 import './Widget.css';
 
-const API_URL = 'http://localhost:8080/execute';
+const API_URL = 'http://localhost:8080';
 
 interface PropsType {
   formula: string,
@@ -33,7 +33,8 @@ class Widget extends Component<PropsType, StateType> {
   input: HTMLInputElement | null = null;
 
   componentDidMount() {
-    this.handleFormulaChanged(this.state.formula);
+    saveVar(this.state.varName, this.state.formula);
+    this.refreshResult();
   }
 
   handleVarNameChanged = (varName: string) => {
@@ -46,6 +47,16 @@ class Widget extends Component<PropsType, StateType> {
 
   stopEditing() {
     this.setState({editing: false});
+    saveVar(this.state.varName, this.state.formula);
+    this.refreshResult();
+  }
+
+  refreshResult() {
+    execute(this.state.formula).then((result) => {
+      this.setState({result});
+    }).catch((e) => {
+      this.setState({result: `error: ${e}`});
+    });
   }
 
   handleFormulaInputKeyDown = (keyCode: number) => {
@@ -58,12 +69,6 @@ class Widget extends Component<PropsType, StateType> {
 
   handleFormulaChanged = (formula: string) => {
     this.setState({formula, result: null});
-
-    execute(formula).then((result) => {
-      this.setState({result});
-    }).catch((e) => {
-      this.setState({result: `error: ${e}`});
-    });
   }
 
   handleResultWindowClicked = () => {
@@ -71,7 +76,9 @@ class Widget extends Component<PropsType, StateType> {
   }
 
   handleClickOutside() {
-    this.stopEditing();
+    if (this.state.editing) {
+      this.stopEditing();
+    }
   }
 
   render() {
@@ -112,8 +119,15 @@ interface ApiResult {
   },
 }
 
+function saveVar(key: string, formula: string): Promise<{}> {
+  return axios.post(API_URL+'/variables', {
+    varName: key,
+    formula,
+  });
+}
+
 function execute(formula: string): Promise<number | string | null> {
-  return axios.post(API_URL, {
+  return axios.post(API_URL+'/execute', {
     formula,
   }).then((resp) => {
     const payload: ApiResult = resp.data;
