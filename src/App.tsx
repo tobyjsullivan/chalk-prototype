@@ -1,14 +1,19 @@
 import React, { Component } from 'react';
 import Widget from './Widget';
 import {List, Map} from 'immutable';
-
-import './App.css';
+import { Session } from './chalk/domain';
+import MainScreen from './ui/MainScreen';
 
 const DEFAULT_FORMULA = '1';
+
+interface AppProps {
+  getSession: () => Promise<Session>
+}
 
 interface AppState {
   variables: List<Variable>;
   nextVarNum: number;
+  session: Session | null;
 }
 
 interface Variable {
@@ -16,10 +21,20 @@ interface Variable {
   formula: string;
 }
 
-class App extends Component<{}, AppState> {
+class App extends Component<AppProps, AppState> {
   state = {
     variables: List(),
     nextVarNum: 1,
+    session: null,
+  }
+
+  componentDidMount() {
+  }
+
+  async initSession() {
+    const {getSession} = this.props;
+    const session = await getSession();
+    this.setState({session});
   }
 
   onAdd() {
@@ -38,20 +53,12 @@ class App extends Component<{}, AppState> {
   render() {
     const {variables} = this.state;
 
-    const widgets = variables.map((v) => (
-      <Widget
-        key={v.varName}
-        varName={v.varName}
-        formula={v.formula} />
-    )).toArray();
-    console.log('Widgets: %o', widgets);
-
     return (
-      <div className="App">
-        <h1 className="App-title">Chalk</h1>
-        <a onClick={() => this.onAdd()} href="#">Add +</a>
-        {widgets}
-      </div>
+      <MainScreen
+        Widget={Widget}
+        onAdd={() => this.onAdd()}
+        title="Chalk"
+        variables={variables} />
     );
   }
 }

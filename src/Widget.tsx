@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import enhanceWithClickOutside from 'react-click-outside';
 import {Map} from 'immutable';
-
-import './Widget.css';
+import FormulaWidget from './ui/FormulaWidget';
 
 const API_URL = 'http://192.168.1.5:8080';
 
@@ -31,19 +29,13 @@ class Widget extends Component<PropsType, StateType> {
     }
   }
 
-  input: HTMLInputElement | null = null;
-
   componentDidMount() {
     saveVar(this.state.varName, this.state.formula);
     this.refreshResult();
   }
 
-  handleVarNameChanged = (varName: string) => {
-    this.setState({varName});
-  }
-
   startEditing() {
-    this.setState({editing: true}, () => this.input ? this.input.focus() : {});
+    this.setState({editing: true});
   }
 
   stopEditing() {
@@ -60,17 +52,6 @@ class Widget extends Component<PropsType, StateType> {
     });
   }
 
-  handleFormulaInputKeyDown = (e: React.KeyboardEvent) => {
-    // 13 => Enter
-    // 27 => Escape
-    if (e.keyCode == 13 || e.keyCode == 27) {
-      e.preventDefault();
-      this.stopEditing();
-    }
-  }
-
-  handleFormulaInputBlur = this.stopEditing;
-
   handleFormulaChanged = (formula: string) => {
     this.setState({formula: cleanFormula(formula), result: null});
   }
@@ -79,42 +60,18 @@ class Widget extends Component<PropsType, StateType> {
     this.startEditing();
   }
 
-  handleClickOutside() {
-    if (this.state.editing) {
-      this.stopEditing();
-    }
-  }
-
   render() {
     const {editing, varName, formula, result} = this.state;
 
-    let display = (
-      <div className="Widget-result_window" onClick={this.handleResultWindowClicked}>
-          {result || ''}
-        </div>
-    );
-    if (editing) {
-      display = (
-        <div className="Widget-formula_window">
-          <input
-            ref={(input) => {this.input = input}}
-            className="Widget-formula_input"
-            type="text"
-            defaultValue={formula}
-            onBlur={this.handleFormulaInputBlur.bind(this)}
-            onKeyDown={this.handleFormulaInputKeyDown.bind(this)}
-            onChange={e => this.handleFormulaChanged(e.target.value)} />
-        </div>
-      );
-    }
-
     return (
-      <div className="Widget">
-        <div className="Widget-var_name">
-          {varName}
-        </div>
-        {display}
-      </div>
+      <FormulaWidget
+        editing={editing}
+        varName={varName}
+        formula={formula}
+        result={result}
+        onEditStartAction={() => this.startEditing()}
+        onEditEndAction={() => this.stopEditing()}
+        onFormulaChange={(formula) => this.handleFormulaChanged(formula)} />
     );
   }
 }
@@ -170,4 +127,4 @@ function cleanFormula(formula: string): string {
   return CHAR_REPLACEMENTS.reduce((f, replacement, needle) => f.replace(needle, replacement), formula);
 }
 
-export default enhanceWithClickOutside(Widget);
+export default Widget;
