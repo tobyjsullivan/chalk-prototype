@@ -15,7 +15,11 @@ if ('ontouchstart' in document.documentElement) {
 
 const chalk = new ChalkClient(API_URL);
 
-ReactDOM.render(<App getSession={() => getActiveSession(chalk)} />, document.getElementById('root'));
+ReactDOM.render(
+  <App
+    executeFormula={(formula) => chalk.Execute(formula)}
+    getSession={() => getActiveSession(chalk)} />,
+  document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

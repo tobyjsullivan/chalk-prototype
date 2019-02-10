@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import {Map} from 'immutable';
+import {Result, None} from './chalk/domain/resolver';
 import FormulaWidget from './ui/FormulaWidget';
 
 const API_URL = 'http://192.168.1.5:8080';
@@ -8,12 +9,13 @@ const API_URL = 'http://192.168.1.5:8080';
 interface PropsType {
   formula: string,
   varName: string,
+  executeFormula: (formula: string) => Promise<Result>,
 }
 
 interface StateType {
   varName: string,
   formula: string,
-  result: string | number | null,
+  result: Result,
   editing: boolean,
 }
 
@@ -24,7 +26,7 @@ class Widget extends Component<PropsType, StateType> {
     this.state = {
       varName,
       formula,
-      result: null,
+      result: None,
       editing: false,
     }
   }
@@ -45,15 +47,19 @@ class Widget extends Component<PropsType, StateType> {
   }
 
   refreshResult() {
-    execute(this.state.formula).then((result) => {
+    const {executeFormula} = this.props;
+    executeFormula(this.state.formula).then((result) => {
       this.setState({result});
     }).catch((e) => {
-      this.setState({result: `error: ${e}`});
+      this.setState({result: {
+        resultType: 'string',
+        value: `error: ${e}`,
+      }});
     });
   }
 
   handleFormulaChanged = (formula: string) => {
-    this.setState({formula: cleanFormula(formula), result: null});
+    this.setState({formula: cleanFormula(formula), result: None});
   }
 
   handleResultWindowClicked = () => {
@@ -76,45 +82,10 @@ class Widget extends Component<PropsType, StateType> {
   }
 }
 
-interface ApiResult {
-  error?: string,
-  result?: {
-    type: 'number';
-    numberValue: number;
-  } | {
-    type: 'string',
-    stringValue: string;
-  },
-}
-
 function saveVar(key: string, formula: string): Promise<{}> {
   return axios.post(API_URL+'/variables', {
     varName: key,
     formula,
-  });
-}
-
-function execute(formula: string): Promise<number | string | null> {
-  return axios.post(API_URL+'/execute', {
-    formula,
-  }).then((resp) => {
-    const payload: ApiResult = resp.data;
-
-    if (payload.error) {
-      throw payload.error;
-    }
-
-    if (!payload.result) {
-      // Empty result
-      return null;
-    }
-
-    switch (payload.result.type) {
-    case 'number':
-      return payload.result.numberValue;
-    case 'string':
-      return payload.result.stringValue;
-    }
   });
 }
 

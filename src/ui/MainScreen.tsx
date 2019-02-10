@@ -1,17 +1,20 @@
-import React, { Component, ComponentClass } from "react";
+import React, { Component, ComponentClass, StatelessComponent } from "react";
 import {List} from 'immutable';
 
 import './MainScreen.css';
+import { type } from "os";
 
-interface WidgetProps {
+export interface WidgetProps {
   varName: string;
   formula: string;
 }
 
+type Widget = Component<WidgetProps, {}>
+
 interface MainScreenProps {
   title: string;
   onAdd: () => void;
-  Widget: ComponentClass<WidgetProps, {}>;
+  Widget: StatelessComponent<WidgetProps> | ComponentClass<WidgetProps, {}>;
   variables: List<{
     varName: string;
     formula: string;

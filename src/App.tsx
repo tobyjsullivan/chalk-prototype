@@ -1,13 +1,15 @@
-import React, { Component } from 'react';
-import Widget from './Widget';
+import React, { Component, StatelessComponent } from 'react';
 import {List, Map} from 'immutable';
+import Widget from './Widget';
+import {Result} from './chalk/domain/resolver';
 import { Session } from './chalk/domain';
-import MainScreen from './ui/MainScreen';
+import MainScreen, {WidgetProps} from './ui/MainScreen';
 
 const DEFAULT_FORMULA = '1';
 
 interface AppProps {
-  getSession: () => Promise<Session>
+  getSession: () => Promise<Session>,
+  executeFormula: (formula: string) => Promise<Result>,
 }
 
 interface AppState {
@@ -51,11 +53,16 @@ class App extends Component<AppProps, AppState> {
   }
 
   render() {
+    const {executeFormula} = this.props;
     const {variables} = this.state;
+
+    const ExecutingWidget = ({formula, varName}: WidgetProps) => (
+      <Widget formula={formula} varName={varName} executeFormula={executeFormula} />
+    );
 
     return (
       <MainScreen
-        Widget={Widget}
+        Widget={ExecutingWidget}
         onAdd={() => this.onAdd()}
         title="Chalk"
         variables={variables} />

@@ -1,12 +1,15 @@
 import React, {Component} from 'react';
 import enhanceWithClickOutside from 'react-click-outside';
+
+import {Result} from '../chalk/domain/resolver';
+import ResultDisplay from './ResultDisplay';
 import './FormulaWidget.css';
 
 interface PropsType {
   editing: boolean;
   varName: string;
   formula: string;
-  result: string | number | null;
+  result: Result;
   onEditStartAction: () => any;
   onEditEndAction: () => any;
   onFormulaChange: (formula: string) => any;
@@ -49,7 +52,7 @@ class FormulaWidget extends Component<PropsType, {}> {
     const {editing, varName, formula, result, onEditStartAction, onEditEndAction, onFormulaChange} = this.props;
     let display = (
       <div className="Widget-result_window" onClick={onEditStartAction}>
-        {result || ''}
+        <ResultDisplay result={result} />
       </div>
     );
     if (editing) {
