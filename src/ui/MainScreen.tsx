@@ -22,11 +22,11 @@ interface MainScreenProps {
 }
 
 const MainScreen = ({title, onAdd, Widget, variables}: MainScreenProps) => {
-  const widgets = variables.map((v) => (
+  const widgets = variables.map(({varName, formula}) => (
     <Widget
-      key={v.varName}
-      varName={v.varName}
-      formula={v.formula} />
+      key={varName}
+      varName={varName}
+      formula={formula} />
   )).toArray();
   console.log('Widgets: %o', widgets);
 

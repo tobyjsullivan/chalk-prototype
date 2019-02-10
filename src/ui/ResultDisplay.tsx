@@ -1,5 +1,6 @@
 import React from 'react';
 import {Result, List} from '../chalk/domain/resolver';
+import './ResultDisplay.css';
 
 interface PropsType {
   result: Result,
@@ -26,15 +27,21 @@ const ResultDisplay = ({result}: PropsType) => {
       );
       break;
     default:
+      const propRows = result.properties.map(({name, value}) => (
+        <li key={name}>
+          {name}: <ResultDisplay result={value} />
+        </li>
+      ));
+
       content = (
-        <pre>
-          {JSON.stringify(result)}
-        </pre>
+        <ul>
+          {propRows}
+        </ul>
       );
   }
 
   return (
-    <div>
+    <div className="ResultDisplay">
       {content}
     </div>
   );

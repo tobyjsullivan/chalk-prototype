@@ -32,7 +32,9 @@ class Widget extends Component<PropsType, StateType> {
   }
 
   componentDidMount() {
-    saveVar(this.state.varName, this.state.formula);
+    const {varName, formula} = this.state;
+    console.log('component did mount:', varName, formula);
+    saveVar(varName, formula);
     this.refreshResult();
   }
 
@@ -42,7 +44,9 @@ class Widget extends Component<PropsType, StateType> {
 
   stopEditing() {
     this.setState({editing: false});
-    saveVar(this.state.varName, this.state.formula);
+    const {varName, formula} = this.state;
+    console.log('stopEditing:', varName, formula);
+    saveVar(varName, formula);
     this.refreshResult();
   }
 
