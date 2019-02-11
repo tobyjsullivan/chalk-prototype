@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-import {ExecuteFormula} from './resolver';
+import {setVariable} from './variables';
+import {executeFormula} from './resolver';
 import {Result} from './domain/resolver';
 import {Session} from './domain';
 
@@ -11,16 +12,26 @@ class ChalkClient {
     this.apiUrl = apiUrl;
   }
 
-  CreateSession(): Promise<Session> {
+  createSession(): Promise<Session> {
     return Promise.reject('not implemented.');
   }
 
-  GetSession(session_id: string): Promise<Session> {
+  getSession(session_id: string): Promise<Session> {
     return Promise.reject('not implemented.');
   }
 
-  Execute(formula: string): Promise<Result> {
-    return ExecuteFormula(this.apiUrl, formula);
+  setVariable(varName: string, formula: string): Promise<{}> {
+    console.log('Setting variable', varName, formula);
+    return setVariable(this.apiUrl, varName, formula);
+  }
+
+  execute(formula: string): Promise<Result> {
+    console.log('Firing execute:', formula);
+    return executeFormula(this.apiUrl, formula);
+  }
+
+  checkConnection(): Promise<{}> {
+    return axios.get(this.apiUrl + '/health');
   }
 }
 

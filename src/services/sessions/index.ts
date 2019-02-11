@@ -7,12 +7,12 @@ export async function getActiveSession(chalk: ChalkClient): Promise<Session> {
   const sessionId = window.sessionStorage.getItem(SESSION_KEY);
   if (sessionId === null) {
     // create a new session
-    const newSession = await chalk.CreateSession();
+    const newSession = await chalk.createSession();
     window.sessionStorage.setItem(SESSION_KEY, newSession.id);
     return newSession;
   }
 
-  return chalk.GetSession(sessionId);
+  return chalk.getSession(sessionId);
 }
 
 

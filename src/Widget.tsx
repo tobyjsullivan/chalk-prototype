@@ -9,6 +9,7 @@ const API_URL = 'http://192.168.1.5:8080';
 interface PropsType {
   formula: string,
   varName: string,
+  onVarChange: (formula: string) => any,
   executeFormula: (formula: string) => Promise<Result>,
 }
 
@@ -20,6 +21,8 @@ interface StateType {
 }
 
 class Widget extends Component<PropsType, StateType> {
+  unmounted: boolean;
+
   constructor(props: PropsType) {
     super(props);
     const {varName, formula} = props;
@@ -29,13 +32,26 @@ class Widget extends Component<PropsType, StateType> {
       result: None,
       editing: false,
     }
+    this.unmounted = false;
   }
 
   componentDidMount() {
-    const {varName, formula} = this.state;
-    console.log('component did mount:', varName, formula);
-    saveVar(varName, formula);
+    console.log('Refreshing b/c component did mount for', this.props.varName);
     this.refreshResult();
+  }
+
+  componentDidUpdate(prevProps: PropsType) {
+    if (prevProps.formula === this.props.formula) {
+      return
+    }
+
+    console.log('Refreshing b/c formula changed from', prevProps.formula, 'to', this.props.formula);
+
+    this.refreshResult();
+  }
+
+  componentWillUnmount() {
+    this.unmounted = true;
   }
 
   startEditing() {
@@ -43,16 +59,27 @@ class Widget extends Component<PropsType, StateType> {
   }
 
   stopEditing() {
+    const {formula: originalFormula, onVarChange} = this.props;
+    const {formula: newFormula} = this.state;
+
     this.setState({editing: false});
-    const {varName, formula} = this.state;
-    console.log('stopEditing:', varName, formula);
-    saveVar(varName, formula);
-    this.refreshResult();
+
+    if (newFormula !== originalFormula) {
+      onVarChange(newFormula);
+    } else {
+      this.refreshResult();
+    }
   }
 
   refreshResult() {
     const {executeFormula} = this.props;
-    executeFormula(this.state.formula).then((result) => {
+    const {formula} = this.state;
+    executeFormula(formula).then((result) => {
+      console.log("Execution complete:", formula, "=>", result);
+      if (this.unmounted) {
+        console.log('Widget already unmounted.');
+        return;
+      }
       this.setState({result});
     }).catch((e) => {
       this.setState({result: {
@@ -64,10 +91,6 @@ class Widget extends Component<PropsType, StateType> {
 
   handleFormulaChanged = (formula: string) => {
     this.setState({formula: cleanFormula(formula), result: None});
-  }
-
-  handleResultWindowClicked = () => {
-    this.startEditing();
   }
 
   render() {
@@ -84,13 +107,6 @@ class Widget extends Component<PropsType, StateType> {
         onFormulaChange={(formula) => this.handleFormulaChanged(formula)} />
     );
   }
-}
-
-function saveVar(key: string, formula: string): Promise<{}> {
-  return axios.post(API_URL+'/variables', {
-    varName: key,
-    formula,
-  });
 }
 
 const CHAR_REPLACEMENTS = Map({

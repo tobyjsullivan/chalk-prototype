@@ -2,17 +2,15 @@ import React, { Component, ComponentClass, StatelessComponent } from "react";
 import {List} from 'immutable';
 
 import './MainScreen.css';
-import { type } from "os";
 
 export interface WidgetProps {
   varName: string;
   formula: string;
 }
 
-type Widget = Component<WidgetProps, {}>
-
 interface MainScreenProps {
   title: string;
+  online: boolean | null;
   onAdd: () => void;
   Widget: StatelessComponent<WidgetProps> | ComponentClass<WidgetProps, {}>;
   variables: List<{
@@ -21,20 +19,29 @@ interface MainScreenProps {
   }>;
 }
 
-const MainScreen = ({title, onAdd, Widget, variables}: MainScreenProps) => {
+const MainScreen = ({title, online, onAdd, Widget, variables}: MainScreenProps) => {
   const widgets = variables.map(({varName, formula}) => (
-    <Widget
-      key={varName}
-      varName={varName}
-      formula={formula} />
+    <div key={varName}>
+      <Widget
+        varName={varName}
+        formula={formula} />
+    </div>
   )).toArray();
   console.log('Widgets: %o', widgets);
+
+  let status = 'checking...';
+  if (online !== null) {
+    status = online ? 'online' : 'connection error';
+  }
 
   return (
     <div className="MainScreen">
       <h1 className="MainScreen-title">{title}</h1>
+      <p>Status: {status}</p>
       <a className="MainScreen-link" onClick={() => onAdd()} href="#">Add +</a>
-      {widgets}
+      <div>
+        {widgets}
+      </div>
     </div>
   );
 };

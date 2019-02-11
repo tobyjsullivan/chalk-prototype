@@ -2,7 +2,7 @@ import axios from 'axios';
 
 import {Result, None} from '../domain/resolver';
 
-export function ExecuteFormula(apiUrl: string, formula: string): Promise<Result> {
+export function executeFormula(apiUrl: string, formula: string): Promise<Result> {
   return axios.post(apiUrl+'/execute', {
     formula,
   }).then((resp) => {

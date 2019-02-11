@@ -1,4 +1,4 @@
-import React, { Component, StatelessComponent } from 'react';
+import React, { Component, StatelessComponent, ComponentClass } from 'react';
 import {List, Map} from 'immutable';
 import Widget from './Widget';
 import {Result} from './chalk/domain/resolver';
@@ -8,29 +8,43 @@ import MainScreen, {WidgetProps} from './ui/MainScreen';
 const DEFAULT_FORMULA = '1';
 
 interface AppProps {
+  checkConnection: () => Promise<any>,
   getSession: () => Promise<Session>,
   executeFormula: (formula: string) => Promise<Result>,
+  setVariable: (varName: string, formula: string) => Promise<any>,
 }
 
 interface AppState {
-  variables: List<Variable>;
+  online: boolean | null;
+  variables: List<string>;
   nextVarNum: number;
   session: Session | null;
-}
-
-interface Variable {
-  varName: string;
-  formula: string;
+  varCache: Map<string, string>;
 }
 
 class App extends Component<AppProps, AppState> {
-  state = {
-    variables: List(),
-    nextVarNum: 1,
-    session: null,
+  ExecutingWidget: StatelessComponent<WidgetProps> | ComponentClass<WidgetProps, {}>;
+
+  constructor(props: AppProps) {
+    super(props);
+
+    const {executeFormula} = this.props;
+
+    this.ExecutingWidget = ({formula, varName}: WidgetProps) => (
+      <Widget
+        formula={formula}
+        varName={varName}
+        onVarChange={(f: string) => this.handleVarChanged(varName, f)}
+        executeFormula={(f) => executeFormula(f)} />
+    );
   }
 
-  componentDidMount() {
+  state = {
+    online: null,
+    variables: List<string>(),
+    nextVarNum: 1,
+    session: null,
+    varCache: Map<string, string>(),
   }
 
   async initSession() {
@@ -39,33 +53,59 @@ class App extends Component<AppProps, AppState> {
     this.setState({session});
   }
 
+  componentDidMount() {
+    const {checkConnection} = this.props;
+
+    checkConnection().then(() => {
+      this.setState({online: true});
+    }).catch(() => {
+      this.setState({online: false});
+    });
+  }
+
   onAdd() {
     console.log('onAdd() executing...');
     this.setState((prev) => {
       const varName = `var${prev.nextVarNum}`;
-      const newVar = {varName, formula: DEFAULT_FORMULA};
+      this.props.setVariable(varName, DEFAULT_FORMULA).then(() => {
+        this.setCache(varName, DEFAULT_FORMULA);
+      });
 
       return {
-        variables: prev.variables.insert(0, newVar),
+        variables: prev.variables.push(varName),
         nextVarNum: prev.nextVarNum + 1,
       };
     });
   }
 
+  setCache(varName: string, formula: string) {
+    this.setState(({varCache}) => ({varCache: varCache.set(varName, formula)}));
+  }
+
+  clearCache(varName: string) {
+    this.setState(({varCache}) => ({varCache: varCache.delete(varName)}));
+  }
+
+  handleVarChanged(varName: string, formula: string) {
+    this.setCache(varName, formula);
+    this.props.setVariable(varName, formula);
+  }
+
   render() {
     const {executeFormula} = this.props;
-    const {variables} = this.state;
+    const {online, variables, varCache} = this.state;
 
-    const ExecutingWidget = ({formula, varName}: WidgetProps) => (
-      <Widget formula={formula} varName={varName} executeFormula={executeFormula} />
-    );
-
+    const vars: List<{varName:string, formula: string}> = variables
+      .map((varName) => ({varName, formula: varCache.get(varName, '')}))
+      .filter((v) => v.formula !== '')
+      .toList();
     return (
       <MainScreen
-        Widget={ExecutingWidget}
+        Widget={this.ExecutingWidget}
         onAdd={() => this.onAdd()}
         title="Chalk"
-        variables={variables} />
+        online={online}
+        variables={vars} />
     );
   }
 }

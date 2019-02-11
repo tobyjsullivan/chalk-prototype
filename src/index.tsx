@@ -17,7 +17,9 @@ const chalk = new ChalkClient(API_URL);
 
 ReactDOM.render(
   <App
-    executeFormula={(formula) => chalk.Execute(formula)}
+    checkConnection={() => chalk.checkConnection()}
+    executeFormula={(formula) => chalk.execute(formula)}
+    setVariable={(varName, formula) => chalk.setVariable(varName, formula)}
     getSession={() => getActiveSession(chalk)} />,
   document.getElementById('root'));
 
