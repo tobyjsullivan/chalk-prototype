@@ -92,7 +92,6 @@ class App extends Component<AppProps, AppState> {
   }
 
   render() {
-    const {executeFormula} = this.props;
     const {online, variables, varCache} = this.state;
 
     const vars: List<{varName:string, formula: string}> = variables
