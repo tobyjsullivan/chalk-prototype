@@ -18,7 +18,9 @@ const ResultDisplay = ({result}: PropsType) => {
       break;
     case 'list':
       const items = result.elements.map((res, i) => (
-        <ResultDisplay result={res} key={i} />
+        <li key={name} className="ResultDisplay-list_item">
+          <ResultDisplay result={res} key={i} />
+        </li>
       ));
       content = (
         <ul>
@@ -26,7 +28,7 @@ const ResultDisplay = ({result}: PropsType) => {
         </ul>
       );
       break;
-    default:
+    case 'record':
       const propRows = result.properties.map(({name, value}) => (
         <li key={name}>
           {name}: <ResultDisplay result={value} />
@@ -38,6 +40,7 @@ const ResultDisplay = ({result}: PropsType) => {
           {propRows}
         </ul>
       );
+      break;
   }
 
   return (

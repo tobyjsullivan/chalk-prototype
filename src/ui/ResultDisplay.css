@@ -1,3 +1,7 @@
 .ResultDisplay {
-  display: inline-block;
+  display: contents;
+}
+
+.ResultDisplay-list_item {
+
 }
