@@ -38,6 +38,15 @@ function parseApiResultObject(obj: ApiResultObject): Result {
       resultType: 'string',
       value: obj.stringValue,
     };
+  case 'lambda':
+    if (!obj.lambdaValue) {
+      throw 'missing lambdaValue';
+    }
+
+    return {
+      resultType: 'lambda',
+      freeVariables: obj.lambdaValue.freeVariables,
+    }
   case 'list':
     if (!obj.listValue) {
       throw 'missing listValue';
@@ -79,6 +88,9 @@ interface ApiResultObject {
   },
   numberValue?: number,
   stringValue?: string,
+  lambdaValue?: {
+    freeVariables: [string],
+  },
   listValue?: {
     elements: ReadonlyArray<ApiResultObject>,
   },

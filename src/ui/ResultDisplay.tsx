@@ -16,6 +16,9 @@ const ResultDisplay = ({result}: PropsType) => {
     case 'number':
       content = result.value;
       break;
+    case 'lambda':
+      content = `λ (${result.freeVariables.join(', ')})`
+      break;
     case 'list':
       const items = result.elements.map((res, i) => (
         <li key={name} className="ResultDisplay-list_item">
