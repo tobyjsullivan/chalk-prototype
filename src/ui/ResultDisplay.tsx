@@ -21,8 +21,8 @@ const ResultDisplay = ({result}: PropsType) => {
       break;
     case 'list':
       const items = result.elements.map((res, i) => (
-        <li key={name} className="ResultDisplay-list_item">
-          <ResultDisplay result={res} key={i} />
+        <li key={i} className="ResultDisplay-list_item">
+          <ResultDisplay result={res} />
         </li>
       ));
       content = (
