@@ -1,4 +1,4 @@
-export type Result = NoneType | Number | String | List | Record;
+export type Result = NoneType | Number | String | Lambda | List | Record;
 
 export const None: NoneType = {
   resultType: 'none',
@@ -16,6 +16,11 @@ export interface Number {
 export interface String {
   resultType: 'string',
   value: string,
+}
+
+export interface Lambda {
+  resultType: 'lambda',
+  freeVariables: [string],
 }
 
 export interface List {
