@@ -26,6 +26,7 @@ ReactDOM.render(
     checkConnection={() => chalk.checkConnection()}
     createVariable={(name, formula) => chalk.createVariable(name, formula)}
     updateVariable={(id, formula) => chalk.updateVariable(id, formula)}
+    renameVariable={(id, name) => chalk.renameVariable(id, name)}
     getVariable={(id) => getVariable(id)}
     getSession={() => getActiveSession(chalk)} />,
   document.getElementById('root'));

@@ -10,12 +10,15 @@ interface PropsType {
   formula: string;
   result: Result;
   onFormulaChange: (formula: string) => Promise<any>;
+  onNameChange: (name: string) => Promise<any>;
 }
 
 interface StateType {
   editing: boolean;
+  editingName: boolean;
   disabled: boolean;
-  currentValue: string;
+  currentFormula: string;
+  currentName: string;
 }
 
 function isEndAction(e: React.KeyboardEvent) {
@@ -32,8 +35,10 @@ class FormulaWidget extends Component<PropsType, StateType> {
   input: HTMLInputElement | null = null;
   state = {
     editing: false,
+    editingName: false,
     disabled: false,
-    currentValue: this.props.formula,
+    currentFormula: this.props.formula,
+    currentName: this.props.varName,
   }
 
   componentDidMount() {
@@ -56,8 +61,21 @@ class FormulaWidget extends Component<PropsType, StateType> {
     }
   }
 
-  handleInputChanged(formula: string) {
-    this.setState({currentValue: formula});
+  startEditingName() {
+    this.setState({editingName: true});
+  }
+
+  endEditingName() {
+    const {onNameChange} = this.props;
+    const {editingName, currentName} = this.state;
+    if (editingName) {
+      this.setState({editingName: false});
+      onNameChange(currentName);
+    }
+  }
+
+  handleNameInputChanged(name: string) {
+    this.setState({currentName: name});
   }
 
   startEditing() {
@@ -68,7 +86,7 @@ class FormulaWidget extends Component<PropsType, StateType> {
 
   endEditing() {
     const {onFormulaChange} = this.props;
-    const {editing, currentValue} = this.state;
+    const {editing, currentFormula: currentValue} = this.state;
 
     if (editing) {
       this.setState({disabled: true});
@@ -78,16 +96,36 @@ class FormulaWidget extends Component<PropsType, StateType> {
     }
   }
 
+  handleFormulaInputChanged(formula: string) {
+    this.setState({currentFormula: formula});
+  }
+
   render() {
-    const {varName, formula, result} = this.props;
-    const {editing, disabled} = this.state;
-    let display = (
+    const {formula, result} = this.props;
+    const {editingName, editing, disabled, currentName} = this.state;
+    let nameDisplay = (
+      <div className="Widget-var_name" onClick={() => this.startEditingName()}>
+        {currentName}
+      </div>
+    );
+    let valueDisplay = (
       <div className="Widget-result_window" onClick={() => this.startEditing()}>
         <ResultDisplay result={result} />
       </div>
     );
+    if (editingName) {
+      nameDisplay = (
+        <div className="Widget-var_name">
+          <input
+            onChange={(e) => this.handleNameInputChanged(e.target.value)}
+            onKeyDown={e => isEndAction(e) ? this.endEditingName() : {}}
+            onBlur={() => this.endEditingName()}
+            defaultValue={currentName} />
+        </div>
+      );
+    }
     if (editing) {
-      display = (
+      valueDisplay = (
         <div className="Widget-formula_window">
           <input
             ref={(input) => {this.input = input}}
@@ -97,17 +135,15 @@ class FormulaWidget extends Component<PropsType, StateType> {
             disabled={disabled}
             onBlur={() => this.endEditing()}
             onKeyDown={e => isEndAction(e) ? this.endEditing() : {}}
-            onChange={e => this.handleInputChanged(e.target.value)} />
+            onChange={e => this.handleFormulaInputChanged(e.target.value)} />
         </div>
       );
     }
 
     return (
       <div className="Widget">
-        <div className="Widget-var_name">
-          {varName}
-        </div>
-        {display}
+        {nameDisplay}
+        {valueDisplay}
       </div>
     );
   }

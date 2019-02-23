@@ -11,6 +11,7 @@ interface AppProps {
   getSession: () => Promise<Session>,
   createVariable: (varName: string, formula: string) => Promise<VariableState>,
   updateVariable: (id: string, formula: string) => Promise<VariableState>,
+  renameVariable: (id: string, name: string) => Promise<VariableState>,
   getVariable: (id: string) => Promise<VariableState>,
 }
 
@@ -77,6 +78,12 @@ class App extends Component<AppProps, AppState> {
     this.registerVar(varState);
   }
 
+  async handleVarRenamed(varId: string, name: string): Promise<void> {
+    const varState = await this.props.renameVariable(varId, name);
+
+    this.registerVar(varState);
+  }
+
   render() {
     const {updateVariable} = this.props;
     const {online, variables, currentPageVars} = this.state;
@@ -85,6 +92,7 @@ class App extends Component<AppProps, AppState> {
       <MainScreen
         onAdd={() => this.onAdd()}
         onChange={(id, formula) => this.handleVarChanged(id, formula)}
+        onRename={(id, name) => this.handleVarRenamed(id, name)}
         title="Chalk"
         online={online}
         variables={List(currentPageVars.values()).toArray()} />

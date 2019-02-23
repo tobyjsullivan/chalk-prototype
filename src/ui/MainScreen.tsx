@@ -11,16 +11,18 @@ interface MainScreenProps {
   variables: ReadonlyArray<VariableState>;
   onAdd: () => void;
   onChange: (id: string, formula: string) => Promise<any>;
+  onRename: (id: string, name: string) => Promise<any>;
 }
 
-const MainScreen = ({title, online, onAdd, variables, onChange}: MainScreenProps) => {
+const MainScreen = ({title, online, onAdd, variables, onChange, onRename}: MainScreenProps) => {
   const widgets = variables.map(({id, name, formula, result}) => (
     <div key={name}>
       <FormulaWidget
         varName={name}
         formula={formula}
         result={result}
-        onFormulaChange={(formula) => onChange(id, formula)} />
+        onFormulaChange={(formula) => onChange(id, formula)}
+        onNameChange={(name) => onRename(id, name)} />
     </div>
   ));
   console.log('Widgets: %o', widgets);
