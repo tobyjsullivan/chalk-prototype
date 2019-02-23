@@ -9,11 +9,12 @@ interface PropsType {
   varName: string;
   formula: string;
   result: Result;
-  onFormulaChange: (formula: string) => any;
+  onFormulaChange: (formula: string) => Promise<any>;
 }
 
 interface StateType {
   editing: boolean;
+  disabled: boolean;
   currentValue: string;
 }
 
@@ -31,6 +32,7 @@ class FormulaWidget extends Component<PropsType, StateType> {
   input: HTMLInputElement | null = null;
   state = {
     editing: false,
+    disabled: false,
     currentValue: this.props.formula,
   }
 
@@ -69,14 +71,16 @@ class FormulaWidget extends Component<PropsType, StateType> {
     const {editing, currentValue} = this.state;
 
     if (editing) {
-      this.setState({editing: false});
-      onFormulaChange(currentValue);
+      this.setState({disabled: true});
+      onFormulaChange(currentValue).then(() => {
+        this.setState({editing: false, disabled: false});
+      });
     }
   }
 
   render() {
     const {varName, formula, result} = this.props;
-    const {editing} = this.state;
+    const {editing, disabled} = this.state;
     let display = (
       <div className="Widget-result_window" onClick={() => this.startEditing()}>
         <ResultDisplay result={result} />
@@ -90,6 +94,7 @@ class FormulaWidget extends Component<PropsType, StateType> {
             className="Widget-formula_input"
             type="text"
             defaultValue={formula}
+            disabled={disabled}
             onBlur={() => this.endEditing()}
             onKeyDown={e => isEndAction(e) ? this.endEditing() : {}}
             onChange={e => this.handleInputChanged(e.target.value)} />

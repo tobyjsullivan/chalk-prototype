@@ -71,10 +71,10 @@ class App extends Component<AppProps, AppState> {
     this.setState(({currentPageVars}) => ({currentPageVars: currentPageVars.set(varState.id, varState)}));
   }
 
-  handleVarChanged(varId: string, formula: string) {
-    this.props.updateVariable(varId, formula).then((varState) => {
-      this.registerVar(varState);
-    });
+  async handleVarChanged(varId: string, formula: string): Promise<void> {
+    const varState = await this.props.updateVariable(varId, formula);
+
+    this.registerVar(varState);
   }
 
   render() {

@@ -44,6 +44,10 @@ const ResultDisplay = ({result}: PropsType) => {
         </ul>
       );
       break;
+    case 'error':
+        content = (
+          <p className="ResultDisplay-error">{result.message}</p>
+        )
   }
 
   return (

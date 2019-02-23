@@ -10,7 +10,7 @@ interface MainScreenProps {
   online: boolean | null;
   variables: ReadonlyArray<VariableState>;
   onAdd: () => void;
-  onChange: (id: string, formula: string) => void;
+  onChange: (id: string, formula: string) => Promise<any>;
 }
 
 const MainScreen = ({title, online, onAdd, variables, onChange}: MainScreenProps) => {
