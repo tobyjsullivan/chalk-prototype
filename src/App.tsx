@@ -1,7 +1,5 @@
 import React, { Component, StatelessComponent, ComponentClass } from 'react';
 import {List, Map} from 'immutable';
-import Widget from './Widget';
-import {Result} from './chalk/domain/resolver';
 import {VariableState} from './chalk/domain';
 import { Session } from './chalk/domain';
 import MainScreen from './ui/MainScreen';
@@ -80,11 +78,13 @@ class App extends Component<AppProps, AppState> {
   }
 
   render() {
+    const {updateVariable} = this.props;
     const {online, variables, currentPageVars} = this.state;
 
     return (
       <MainScreen
         onAdd={() => this.onAdd()}
+        onChange={(id, formula) => this.handleVarChanged(id, formula)}
         title="Chalk"
         online={online}
         variables={List(currentPageVars.values()).toArray()} />

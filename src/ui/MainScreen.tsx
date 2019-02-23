@@ -10,19 +10,17 @@ interface MainScreenProps {
   online: boolean | null;
   variables: ReadonlyArray<VariableState>;
   onAdd: () => void;
+  onChange: (id: string, formula: string) => void;
 }
 
-const MainScreen = ({title, online, onAdd, variables}: MainScreenProps) => {
-  const widgets = variables.map(({name, formula, result}) => (
+const MainScreen = ({title, online, onAdd, variables, onChange}: MainScreenProps) => {
+  const widgets = variables.map(({id, name, formula, result}) => (
     <div key={name}>
       <FormulaWidget
-        editing={false} // TODO
         varName={name}
         formula={formula}
         result={result}
-        onEditStartAction={() => {}}
-        onEditEndAction={() => {}}
-        onFormulaChange={() => {}} />
+        onFormulaChange={(formula) => onChange(id, formula)} />
     </div>
   ));
   console.log('Widgets: %o', widgets);

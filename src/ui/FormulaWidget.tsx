@@ -6,13 +6,15 @@ import ResultDisplay from './ResultDisplay';
 import './FormulaWidget.css';
 
 interface PropsType {
-  editing: boolean;
   varName: string;
   formula: string;
   result: Result;
-  onEditStartAction: () => any;
-  onEditEndAction: () => any;
   onFormulaChange: (formula: string) => any;
+}
+
+interface StateType {
+  editing: boolean;
+  currentValue: string;
 }
 
 function isEndAction(e: React.KeyboardEvent) {
@@ -25,8 +27,12 @@ function isEndAction(e: React.KeyboardEvent) {
 }
 
 // Not a static component to allow the input focus and click-outside.
-class FormulaWidget extends Component<PropsType, {}> {
+class FormulaWidget extends Component<PropsType, StateType> {
   input: HTMLInputElement | null = null;
+  state = {
+    editing: false,
+    currentValue: this.props.formula,
+  }
 
   componentDidMount() {
     this.focus()
@@ -37,21 +43,42 @@ class FormulaWidget extends Component<PropsType, {}> {
   }
 
   focus() {
-    this.input && this.props.editing ? this.input.focus() : {}
+    this.input && this.state.editing ? this.input.focus() : {}
   }
 
   handleClickOutside() {
-    const {editing, onEditEndAction} = this.props;
+    const {editing} = this.state;
 
     if (editing) {
-      onEditEndAction();
+      this.endEditing();
+    }
+  }
+
+  handleInputChanged(formula: string) {
+    this.setState({currentValue: formula});
+  }
+
+  startEditing() {
+    this.setState({editing: true}, () => {
+      this.focus();
+    });
+  }
+
+  endEditing() {
+    const {onFormulaChange} = this.props;
+    const {editing, currentValue} = this.state;
+
+    if (editing) {
+      this.setState({editing: false});
+      onFormulaChange(currentValue);
     }
   }
 
   render() {
-    const {editing, varName, formula, result, onEditStartAction, onEditEndAction, onFormulaChange} = this.props;
+    const {varName, formula, result} = this.props;
+    const {editing} = this.state;
     let display = (
-      <div className="Widget-result_window" onClick={onEditStartAction}>
+      <div className="Widget-result_window" onClick={() => this.startEditing()}>
         <ResultDisplay result={result} />
       </div>
     );
@@ -63,9 +90,9 @@ class FormulaWidget extends Component<PropsType, {}> {
             className="Widget-formula_input"
             type="text"
             defaultValue={formula}
-            onBlur={onEditEndAction}
-            onKeyDown={e => isEndAction(e) ? onEditEndAction() : {}}
-            onChange={e => onFormulaChange(e.target.value)} />
+            onBlur={() => this.endEditing()}
+            onKeyDown={e => isEndAction(e) ? this.endEditing() : {}}
+            onChange={e => this.handleInputChanged(e.target.value)} />
         </div>
       );
     }
