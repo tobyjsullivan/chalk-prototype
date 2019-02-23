@@ -1,32 +1,28 @@
 import React, { Component, ComponentClass, StatelessComponent } from "react";
 import {List} from 'immutable';
+import {VariableState} from '../chalk/domain';
 
 import './MainScreen.css';
-
-export interface WidgetProps {
-  varName: string;
-  formula: string;
-}
+import FormulaWidget from "./FormulaWidget";
 
 interface MainScreenProps {
   title: string;
   online: boolean | null;
+  variables: ReadonlyArray<VariableState>;
   onAdd: () => void;
-  Widget: StatelessComponent<WidgetProps> | ComponentClass<WidgetProps, {}>;
-  variables: List<{
-    varName: string;
-    formula: string;
-  }>;
+  onChange: (id: string, formula: string) => void;
 }
 
-const MainScreen = ({title, online, onAdd, Widget, variables}: MainScreenProps) => {
-  const widgets = variables.map(({varName, formula}) => (
-    <div key={varName}>
-      <Widget
-        varName={varName}
-        formula={formula} />
+const MainScreen = ({title, online, onAdd, variables, onChange}: MainScreenProps) => {
+  const widgets = variables.map(({id, name, formula, result}) => (
+    <div key={name}>
+      <FormulaWidget
+        varName={name}
+        formula={formula}
+        result={result}
+        onFormulaChange={(formula) => onChange(id, formula)} />
     </div>
-  )).toArray();
+  ));
   console.log('Widgets: %o', widgets);
 
   let status = 'checking...';

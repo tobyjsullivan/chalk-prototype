@@ -1,9 +1,9 @@
 import axios from 'axios';
 
-import {setVariable} from './variables';
+import {createVariable, renameVariable, updateVariable, getVariables} from './variables';
 import {executeFormula} from './resolver';
 import {Result} from './domain/resolver';
-import {Session} from './domain';
+import {Session, VariableState} from './domain';
 
 class ChalkClient {
   apiUrl: string;
@@ -20,14 +20,20 @@ class ChalkClient {
     return Promise.reject('not implemented.');
   }
 
-  setVariable(varName: string, formula: string): Promise<{}> {
-    console.log('Setting variable', varName, formula);
-    return setVariable(this.apiUrl, varName, formula);
+  createVariable(varName: string, formula: string): Promise<VariableState> {
+    return createVariable(this.apiUrl, varName, formula);
   }
 
-  execute(formula: string): Promise<Result> {
-    console.log('Firing execute:', formula);
-    return executeFormula(this.apiUrl, formula);
+  renameVariable(id: string, varName: string): Promise<VariableState> {
+    return renameVariable(this.apiUrl, id, varName);
+  }
+
+  updateVariable(id: string, formula: string): Promise<VariableState> {
+    return updateVariable(this.apiUrl, id, formula);
+  }
+
+  getVariables(ids: ReadonlyArray<string>): Promise<ReadonlyArray<VariableState>> {
+    return getVariables(this.apiUrl, ids);
   }
 
   checkConnection(): Promise<{}> {
