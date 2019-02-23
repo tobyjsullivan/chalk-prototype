@@ -23,7 +23,7 @@ export function executeFormula(apiUrl: string, formula: string): Promise<Result>
 function parseApiResultObject(obj: ApiResultObject): Result {
   switch (obj.type.class) {
   case 'number':
-    if (!obj.numberValue) {
+    if (obj.numberValue === undefined) {
       throw 'missing numberValue';
     }
     return {
@@ -31,7 +31,7 @@ function parseApiResultObject(obj: ApiResultObject): Result {
       value: obj.numberValue,
     };
   case 'string':
-    if (!obj.stringValue) {
+    if (obj.stringValue === undefined) {
       throw 'missing stringValue';
     }
     return {
@@ -39,7 +39,7 @@ function parseApiResultObject(obj: ApiResultObject): Result {
       value: obj.stringValue,
     };
   case 'lambda':
-    if (!obj.lambdaValue) {
+    if (obj.lambdaValue === undefined) {
       throw 'missing lambdaValue';
     }
 
@@ -48,7 +48,7 @@ function parseApiResultObject(obj: ApiResultObject): Result {
       freeVariables: obj.lambdaValue.freeVariables,
     }
   case 'list':
-    if (!obj.listValue) {
+    if (obj.listValue === undefined) {
       throw 'missing listValue';
     }
     return {
@@ -56,7 +56,7 @@ function parseApiResultObject(obj: ApiResultObject): Result {
       elements: obj.listValue.elements.map(parseApiResultObject),
     }
   case 'record':
-    if (!obj.recordValue) {
+    if (obj.recordValue === undefined) {
       throw 'missing recordValue';
     }
 

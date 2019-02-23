@@ -5,7 +5,7 @@ import {Result} from './chalk/domain/resolver';
 import { Session } from './chalk/domain';
 import MainScreen, {WidgetProps} from './ui/MainScreen';
 
-const DEFAULT_FORMULA = '1';
+const DEFAULT_FORMULA = '"Click me"';
 
 interface AppProps {
   checkConnection: () => Promise<any>,
