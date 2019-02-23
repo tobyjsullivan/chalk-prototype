@@ -20,7 +20,7 @@ export function executeFormula(apiUrl: string, formula: string): Promise<Result>
   });
 }
 
-function parseApiResultObject(obj: ApiResultObject): Result {
+export function parseApiResultObject(obj: ApiResultObject): Result {
   switch (obj.type.class) {
   case 'number':
     if (obj.numberValue === undefined) {
@@ -77,7 +77,7 @@ function parseApiResultObject(obj: ApiResultObject): Result {
   }
 }
 
-interface ApiResult {
+export interface ApiResult {
   error?: string,
   result?: ApiResultObject,
 }
