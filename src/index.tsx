@@ -7,7 +7,7 @@ import ChalkClient from './chalk/ChalkClient';
 import { getActiveSession } from './services/sessions';
 import { VariableState } from './chalk/domain';
 
-const API_URL = 'http://chalk-20190225085524550400000005-954935440.ap-southeast-2.elb.amazonaws.com';
+const API_URL = 'https://api.messy.codes';
 
 // Allow click-outside to work on iOS.
 if ('ontouchstart' in document.documentElement) {
