@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import enhanceWithClickOutside from 'react-click-outside';
+import {Map} from 'immutable';
 
 import {Result} from '../chalk/domain/resolver';
 import ResultDisplay from './ResultDisplay';
@@ -97,7 +98,7 @@ class FormulaWidget extends Component<PropsType, StateType> {
   }
 
   handleFormulaInputChanged(formula: string) {
-    this.setState({currentFormula: formula});
+    this.setState({currentFormula: cleanFormula(formula)});
   }
 
   render() {
@@ -147,6 +148,15 @@ class FormulaWidget extends Component<PropsType, StateType> {
       </div>
     );
   }
+}
+
+const CHAR_REPLACEMENTS = Map({
+  '“': '"',
+  '”': '"',
+});
+
+function cleanFormula(formula: string): string {
+  return CHAR_REPLACEMENTS.reduce((f, replacement, needle) => f.split(needle).join(replacement), formula);
 }
 
 export default enhanceWithClickOutside(FormulaWidget);
