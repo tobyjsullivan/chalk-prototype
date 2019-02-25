@@ -93,7 +93,7 @@ class App extends Component<AppProps, AppState> {
         onAdd={() => this.onAdd()}
         onChange={(id, formula) => this.handleVarChanged(id, formula)}
         onRename={(id, name) => this.handleVarRenamed(id, name)}
-        title="Chalk"
+        title="MessyCodes"
         online={online}
         variables={List(currentPageVars.values()).toArray()} />
     );

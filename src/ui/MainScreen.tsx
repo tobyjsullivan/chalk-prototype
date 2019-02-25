@@ -35,11 +35,11 @@ const MainScreen = ({title, online, onAdd, variables, onChange, onRename}: MainS
   return (
     <div className="MainScreen">
       <h1 className="MainScreen-title">{title}</h1>
-      <p>Status: {status}</p>
-      <a className="MainScreen-link" onClick={() => onAdd()} href="#">Add +</a>
+      <a className="MainScreen-link MainScreen-addButton" onClick={() => onAdd()} href="#">+ Add a block</a>
       <div>
         {widgets}
       </div>
+      <p>Status: {status}</p>
     </div>
   );
 };
