@@ -1,5 +1,5 @@
 import React from 'react';
-import {Result, List} from '../chalk/domain/resolver';
+import {Result} from '../chalk/domain/resolver';
 import './ResultDisplay.css';
 
 interface PropsType {
@@ -7,17 +7,17 @@ interface PropsType {
 }
 
 const ResultDisplay = ({result}: PropsType) => {
-  let content = null;
+  let content: JSX.Element;
 
   switch (result.resultType) {
     case 'none':
+      content = (<span />);
       break;
-    case 'string':
-    case 'number':
-      content = result.value;
+    case 'boolean':
+      content = (<span>{result.value ? 'TRUE' : 'FALSE'}</span>);
       break;
     case 'lambda':
-      content = `λ (${result.freeVariables.join(', ')})`
+      content = (<span>`λ (${result.freeVariables.join(', ')})`</span>);
       break;
     case 'list':
       const items = result.elements.map((res, i) => (
@@ -30,6 +30,9 @@ const ResultDisplay = ({result}: PropsType) => {
           {items}
         </ul>
       );
+      break;
+    case 'number':
+      content = (<span>{result.value}</span>);
       break;
     case 'record':
       const propRows = result.properties.map(({name, value}) => (
@@ -44,10 +47,16 @@ const ResultDisplay = ({result}: PropsType) => {
         </ul>
       );
       break;
+    case 'string':
+      content = (<span>{result.value}</span>);
+      break;
     case 'error':
-        content = (
-          <p className="ResultDisplay-error">{result.message}</p>
-        )
+      content = (
+        <p className="ResultDisplay-error">{result.message}</p>
+      );
+      break;
+    default:
+        throw 'Unexpected type: ' + result;
   }
 
   return (

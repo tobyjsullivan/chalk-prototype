@@ -22,6 +22,14 @@ export function executeFormula(apiUrl: string, formula: string): Promise<Result>
 
 export function parseApiResultObject(obj: ApiResultObject): Result {
   switch (obj.type.class) {
+  case 'boolean':
+    if (obj.booleanValue === undefined) {
+      throw 'missing booleanValue';
+    }
+    return {
+      resultType: 'boolean',
+      value: obj.booleanValue,
+    }
   case 'number':
     if (obj.numberValue === undefined) {
       throw 'missing numberValue';
@@ -86,6 +94,7 @@ interface ApiResultObject {
   type: {
     class: string,
   },
+  booleanValue?: boolean,
   numberValue?: number,
   stringValue?: string,
   lambdaValue?: {

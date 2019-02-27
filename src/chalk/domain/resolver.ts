@@ -1,4 +1,4 @@
-export type Result = NoneType | Number | String | Lambda | List | Record | Error;
+export type Result = Error | NoneType | Boolean | Lambda | List | Number | Record | String;
 
 export const None: NoneType = {
   resultType: 'none',
@@ -8,14 +8,9 @@ interface NoneType {
   resultType: 'none',
 }
 
-export interface Number {
-  resultType: 'number',
-  value: number,
-}
-
-export interface String {
-  resultType: 'string',
-  value: string,
+export interface Boolean {
+  resultType: 'boolean',
+  value: boolean,
 }
 
 export interface Lambda {
@@ -28,6 +23,11 @@ export interface List {
   elements: ReadonlyArray<Result>,
 }
 
+export interface Number {
+  resultType: 'number',
+  value: number,
+}
+
 export interface Record {
   resultType: 'record',
   properties: ReadonlyArray<RecordProperty>;
@@ -36,6 +36,11 @@ export interface Record {
 export interface RecordProperty {
   name: string;
   value: Result;
+}
+
+export interface String {
+  resultType: 'string',
+  value: string,
 }
 
 interface Error {
