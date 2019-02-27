@@ -79,9 +79,14 @@ class App extends Component<AppProps, AppState> {
   }
 
   async handleVarRenamed(varId: string, name: string): Promise<void> {
-    const varState = await this.props.renameVariable(varId, name);
+    try {
+      const varState = await this.props.renameVariable(varId, name);
 
-    this.registerVar(varState);
+      this.registerVar(varState);
+    } catch (e) {
+      console.error(e);
+      alert('error renaming var: ' + e);
+    }
   }
 
   render() {
@@ -93,7 +98,7 @@ class App extends Component<AppProps, AppState> {
         onAdd={() => this.onAdd()}
         onChange={(id, formula) => this.handleVarChanged(id, formula)}
         onRename={(id, name) => this.handleVarRenamed(id, name)}
-        title="MessyCodes"
+        title="Messy"
         online={online}
         variables={List(currentPageVars.values()).toArray()} />
     );

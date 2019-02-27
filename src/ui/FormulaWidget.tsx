@@ -102,11 +102,11 @@ class FormulaWidget extends Component<PropsType, StateType> {
   }
 
   render() {
-    const {formula, result} = this.props;
-    const {editingName, editing, disabled, currentName} = this.state;
+    const {varName, formula, result} = this.props;
+    const {editingName, editing, disabled} = this.state;
     let nameDisplay = (
       <div className="Widget-var_name" onClick={() => this.startEditingName()}>
-        {currentName}
+        {varName}
       </div>
     );
     let valueDisplay = (
@@ -121,7 +121,7 @@ class FormulaWidget extends Component<PropsType, StateType> {
             onChange={(e) => this.handleNameInputChanged(e.target.value)}
             onKeyDown={e => isEndAction(e) ? this.endEditingName() : {}}
             onBlur={() => this.endEditingName()}
-            defaultValue={currentName} />
+            defaultValue={varName} />
         </div>
       );
     }
