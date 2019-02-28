@@ -17,7 +17,7 @@ const ResultDisplay = ({result}: PropsType) => {
       content = (<span>{result.value ? 'TRUE' : 'FALSE'}</span>);
       break;
     case 'lambda':
-      content = (<span>`λ (${result.freeVariables.join(', ')})`</span>);
+      content = (<span>{`λ (${result.freeVariables.join(', ')})`}</span>);
       break;
     case 'list':
       const items = result.elements.map((res, i) => (

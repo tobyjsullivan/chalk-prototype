@@ -4,7 +4,7 @@ import {VariableState} from './chalk/domain';
 import { Session } from './chalk/domain';
 import MainScreen from './ui/MainScreen';
 
-const DEFAULT_FORMULA = '"Click me"';
+const DEFAULT_FORMULA = '"Tap Here"';
 
 interface AppProps {
   checkConnection: () => Promise<any>,
