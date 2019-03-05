@@ -1,11 +1,14 @@
 import axios from 'axios';
+import {List} from 'immutable';
 
 import {VariableState} from '../domain';
 import {ApiResult, parseApiResultObject} from '../resolver';
 import { Result } from '../domain/resolver';
 
-export async function createVariable(apiUrl: string, name: string, formula: string): Promise<VariableState> {
+
+export async function createVariable(apiUrl: string, pageId: string, name: string, formula: string): Promise<VariableState> {
   const {data} = await axios.post(apiUrl+'/variables', {
+    page: pageId,
     name,
     formula,
   });
@@ -21,6 +24,13 @@ export async function createVariable(apiUrl: string, name: string, formula: stri
   }
 
   return parseVariableStateResponse(payload.state);
+}
+
+export async function getPageVariables(apiUrl: string, pageId: string): Promise<List<VariableState>> {
+  const {data} = await axios.get(`${apiUrl}/pages/${pageId}/variables`);
+  const payload: GetPageVariablesResponse = data;
+
+  return List(payload.variables).map(parseVariableStateResponse);
 }
 
 export async function renameVariable(apiUrl: string, id: string, name: string): Promise<VariableState> {
@@ -59,22 +69,6 @@ export async function updateVariable(apiUrl: string, id: string, formula: string
   return parseVariableStateResponse(payload.state);
 }
 
-export async function getVariables(apiUrl: string, ids: ReadonlyArray<string>): Promise<ReadonlyArray<VariableState>> {
-  const {data} = await axios.get(apiUrl+`/variables`, {
-    params: {
-      id: ids,
-    }
-  });
-
-  const payload: GetVariablesResponse = data;
-  const out = [];
-  for (const v of payload.variables) {
-    out.push(parseVariableStateResponse(v));
-  }
-
-  return out;
-}
-
 function parseVariableStateResponse(state: VariableStateResponse): VariableState {
   let result: Result;
 
@@ -96,6 +90,10 @@ function parseVariableStateResponse(state: VariableStateResponse): VariableState
     formula: state.formula,
     result,
   }
+}
+
+interface GetPageVariablesResponse {
+  variables: ReadonlyArray<VariableStateResponse>,
 }
 
 interface VariableMutationResponse {

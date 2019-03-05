@@ -1,9 +1,9 @@
-import {Session} from '../../chalk/domain';
+import {SessionState} from '../../chalk/domain';
 import ChalkClient from '../../chalk/ChalkClient';
 
 const SESSION_KEY = 'chalk-session';
 
-export async function getActiveSession(chalk: ChalkClient): Promise<Session> {
+export async function getActiveSession(chalk: ChalkClient): Promise<SessionState> {
   const sessionId = window.localStorage.getItem(SESSION_KEY);
   if (sessionId !== null) {
     // Try getting previous session

@@ -16,18 +16,13 @@ if ('ontouchstart' in document.documentElement) {
 
 const chalk = new ChalkClient(API_URL);
 
-async function getVariable(id: string): Promise<VariableState> {
-  const result = await chalk.getVariables([id]);
-  return result[0]
-}
-
 ReactDOM.render(
   <App
     checkConnection={() => chalk.checkConnection()}
-    createVariable={(name, formula) => chalk.createVariable(name, formula)}
+    createVariable={(pageId, name, formula) => chalk.createVariable(pageId, name, formula)}
     updateVariable={(id, formula) => chalk.updateVariable(id, formula)}
     renameVariable={(id, name) => chalk.renameVariable(id, name)}
-    getVariable={(id) => getVariable(id)}
+    getPageVariables={(pageId) => chalk.getPageVariables(pageId)}
     getSession={() => getActiveSession(chalk)} />,
   document.getElementById('root'));
 
