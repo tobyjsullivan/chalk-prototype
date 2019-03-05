@@ -4,6 +4,7 @@ import {VariableState, PageState} from './chalk/domain';
 import { SessionState } from './chalk/domain';
 import MainScreen from './ui/MainScreen';
 import LoadingScreen from './ui/LoadingScreen';
+import './App.css';
 
 const DEFAULT_FORMULA = '"Tap Here"';
 
@@ -132,21 +133,28 @@ class App extends Component<AppProps, AppState> {
   render() {
     const {updateVariable} = this.props;
     const {online, currentPage, currentPageVars} = this.state;
+    let currentScreen;
     if (currentPage === null) {
-      return (<LoadingScreen />);
+      currentScreen = (<LoadingScreen />);
+    } else {
+      currentScreen = (
+        <MainScreen
+          title="Messy"
+          online={online}
+          currentPage={currentPage}
+          pages={List()}
+          variables={List(currentPageVars.values())}
+          onAddVar={() => this.onAdd()}
+          onOpenPage={(pageId) => this.handlePageOpened(pageId)}
+          onVarChange={(id, formula) => this.handleVarChanged(id, formula)}
+          onVarRename={(id, name) => this.handleVarRenamed(id, name)} />
+      );
     }
 
     return (
-      <MainScreen
-        title="Messy"
-        online={online}
-        currentPage={currentPage}
-        pages={List()}
-        variables={List(currentPageVars.values())}
-        onAddVar={() => this.onAdd()}
-        onOpenPage={(pageId) => this.handlePageOpened(pageId)}
-        onVarChange={(id, formula) => this.handleVarChanged(id, formula)}
-        onVarRename={(id, name) => this.handleVarRenamed(id, name)} />
+      <div className="App">
+        {currentScreen}
+      </div>
     );
   }
 }
