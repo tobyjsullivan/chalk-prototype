@@ -131,15 +131,17 @@ class App extends Component<AppProps, AppState> {
   }
 
   render() {
-    const {updateVariable} = this.props;
     const {online, currentPage, currentPageVars} = this.state;
+
+    const title = "Messy";
+
     let currentScreen;
     if (currentPage === null) {
-      currentScreen = (<LoadingScreen />);
+      currentScreen = (<LoadingScreen title={title} />);
     } else {
       currentScreen = (
         <MainScreen
-          title="Messy"
+          title={title}
           online={online}
           currentPage={currentPage}
           pages={List()}

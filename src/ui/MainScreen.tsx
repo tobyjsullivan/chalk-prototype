@@ -2,9 +2,11 @@ import React, { Component, ComponentClass, StatelessComponent } from "react";
 import {List} from 'immutable';
 import {VariableState, PageState} from '../chalk/domain';
 
-import './MainScreen.css';
+import Header from './Header';
 import Page from './Page';
 import FormulaWidget from "./FormulaWidget";
+
+import './MainScreen.css';
 
 interface MainScreenProps {
   title: string,
@@ -41,7 +43,7 @@ const MainScreen = ({title, online, currentPage, pages, onAddVar, variables, onO
 
   return (
     <div className="MainScreen">
-      <h1 className="MainScreen-title">{title}</h1>
+      <Header title={title} />
       {pageMenu}
       <Page
         currentPage={currentPage}
