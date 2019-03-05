@@ -1,7 +1,14 @@
+import {List} from 'immutable';
+
 import {Result} from './resolver';
 
-export interface Session {
+export interface PageState {
   id: string,
+}
+
+export interface SessionState {
+  id: string,
+  pages: List<PageState>,
 };
 
 export interface VariableState {

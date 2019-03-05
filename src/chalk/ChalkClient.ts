@@ -1,9 +1,9 @@
 import axios from 'axios';
+import {List} from 'immutable';
 
-import {createVariable, renameVariable, updateVariable, getVariables} from './variables';
-import {executeFormula} from './resolver';
-import {Result} from './domain/resolver';
-import {Session, VariableState} from './domain';
+import {createSession, getSession} from './sessions';
+import {createVariable, renameVariable, updateVariable, getPageVariables} from './variables';
+import {SessionState, VariableState} from './domain';
 
 class ChalkClient {
   apiUrl: string;
@@ -12,16 +12,16 @@ class ChalkClient {
     this.apiUrl = apiUrl;
   }
 
-  createSession(): Promise<Session> {
-    return Promise.reject('not implemented.');
+  createSession(): Promise<SessionState> {
+    return createSession(this.apiUrl);
   }
 
-  getSession(session_id: string): Promise<Session> {
-    return Promise.reject('not implemented.');
+  getSession(sessionId: string): Promise<SessionState | null> {
+    return getSession(this.apiUrl, sessionId);
   }
 
-  createVariable(varName: string, formula: string): Promise<VariableState> {
-    return createVariable(this.apiUrl, varName, formula);
+  createVariable(pageId: string, varName: string, formula: string): Promise<VariableState> {
+    return createVariable(this.apiUrl, pageId, varName, formula);
   }
 
   renameVariable(id: string, varName: string): Promise<VariableState> {
@@ -32,8 +32,8 @@ class ChalkClient {
     return updateVariable(this.apiUrl, id, formula);
   }
 
-  getVariables(ids: ReadonlyArray<string>): Promise<ReadonlyArray<VariableState>> {
-    return getVariables(this.apiUrl, ids);
+  getPageVariables(pageId: string): Promise<List<VariableState>> {
+    return getPageVariables(this.apiUrl, pageId);
   }
 
   checkConnection(): Promise<{}> {

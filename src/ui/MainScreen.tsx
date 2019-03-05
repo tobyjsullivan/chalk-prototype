@@ -1,44 +1,54 @@
 import React, { Component, ComponentClass, StatelessComponent } from "react";
 import {List} from 'immutable';
-import {VariableState} from '../chalk/domain';
+import {VariableState, PageState} from '../chalk/domain';
 
 import './MainScreen.css';
+import Page from './Page';
 import FormulaWidget from "./FormulaWidget";
 
 interface MainScreenProps {
-  title: string;
-  online: boolean | null;
-  variables: ReadonlyArray<VariableState>;
-  onAdd: () => void;
-  onChange: (id: string, formula: string) => Promise<any>;
-  onRename: (id: string, name: string) => Promise<any>;
+  title: string,
+  online: boolean | null,
+  pages: List<PageState>,
+  currentPage: PageState,
+  variables: List<VariableState>,
+  onAddVar: () => any,
+  onOpenPage: (pageId: string) => any,
+  onVarChange: (id: string, formula: string) => Promise<any>,
+  onVarRename: (id: string, name: string) => Promise<any>,
 }
 
-const MainScreen = ({title, online, onAdd, variables, onChange, onRename}: MainScreenProps) => {
-  const widgets = variables.map(({id, name, formula, result}) => (
-    <div key={name}>
-      <FormulaWidget
-        varName={name}
-        formula={formula}
-        result={result}
-        onFormulaChange={(formula) => onChange(id, formula)}
-        onNameChange={(name) => onRename(id, name)} />
-    </div>
-  ));
-  console.log('Widgets: %o', widgets);
-
+const MainScreen = ({title, online, currentPage, pages, onAddVar, variables, onOpenPage, onVarChange, onVarRename}: MainScreenProps) => {
   let status = 'checking...';
   if (online !== null) {
     status = online ? 'online' : 'connection error';
   }
 
+  const pageMenuItems = pages.map(({id}) => (
+    <li key={id}>
+      <a
+        href="#"
+        onClick={() => onOpenPage(id)}>
+        {id}
+      </a>
+    </li>
+  ));
+  const pageMenu = (
+    <ul>
+      {pageMenuItems}
+    </ul>
+  );
+
   return (
     <div className="MainScreen">
       <h1 className="MainScreen-title">{title}</h1>
-      <a className="MainScreen-link MainScreen-addButton" onClick={() => onAdd()} href="#">+ Add a block</a>
-      <div>
-        {widgets}
-      </div>
+      {pageMenu}
+      <Page
+        currentPage={currentPage}
+        variables={variables}
+        onAddVar={onAddVar}
+        onVarChange={onVarChange}
+        onVarRename={onVarRename} />
       <p>Status: {status}</p>
     </div>
   );

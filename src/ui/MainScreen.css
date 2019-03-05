@@ -17,19 +17,6 @@ Colour palette:
   color: #482426;
 }
 
-.MainScreen-link {
-  color: #874E4C;
-}
-
-.MainScreen-addButton {
-  text-align: center;
-  width: 200px;
-  margin-right: auto;
-  margin-left: auto;
-  display: block;
-  margin-bottom: 8px;
-}
-
 .MainScreen-title {
   margin: 12px;
   font-family: 'MessyCodes_title', cursive;

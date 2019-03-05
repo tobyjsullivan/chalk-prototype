@@ -1,36 +1,37 @@
 import React, { Component, StatelessComponent, ComponentClass } from 'react';
 import {List, Map} from 'immutable';
-import {VariableState} from './chalk/domain';
-import { Session } from './chalk/domain';
+import {VariableState, PageState} from './chalk/domain';
+import { SessionState } from './chalk/domain';
 import MainScreen from './ui/MainScreen';
+import LoadingScreen from './ui/LoadingScreen';
 
 const DEFAULT_FORMULA = '"Tap Here"';
 
 interface AppProps {
   checkConnection: () => Promise<any>,
-  getSession: () => Promise<Session>,
-  createVariable: (varName: string, formula: string) => Promise<VariableState>,
+  getSession: () => Promise<SessionState>,
+  getPageVariables: (pageId: string) => Promise<List<VariableState>>,
+  createVariable: (pageId: string, varName: string, formula: string) => Promise<VariableState>,
   updateVariable: (id: string, formula: string) => Promise<VariableState>,
   renameVariable: (id: string, name: string) => Promise<VariableState>,
-  getVariable: (id: string) => Promise<VariableState>,
 }
 
 interface AppState {
-  online: boolean | null;
-  variables: List<string>;
-  nextVarNum: number;
-  session: Session | null;
-  currentPageVars: Map<string, VariableState>;
+  online: boolean | null,
+  currentPage: string | null,
+  nextVarNum: number,
+  session: SessionState | null,
+  currentPageVars: Map<string, VariableState>,
 }
 
 class App extends Component<AppProps, AppState> {
-
   constructor(props: AppProps) {
     super(props);
   }
 
   state = {
     online: null,
+    currentPage: null,
     variables: List<string>(),
     nextVarNum: 1,
     session: null,
@@ -41,6 +42,13 @@ class App extends Component<AppProps, AppState> {
     const {getSession} = this.props;
     const session = await getSession();
     this.setState({session});
+
+    const defaultPage = session.pages.first(null);
+    if (defaultPage === null) {
+      return;
+    }
+
+    this.handlePageOpened(defaultPage.id);
   }
 
   componentDidMount() {
@@ -51,56 +59,94 @@ class App extends Component<AppProps, AppState> {
     }).catch(() => {
       this.setState({online: false});
     });
+
+    // We initialise sessions within the App component because we don't want to block first render.
+    this.initSession();
   }
 
-  onAdd() {
-    console.log('onAdd() executing...');
-    this.setState((prev) => {
-      const varName = `var${prev.nextVarNum}`;
-      this.props.createVariable(varName, DEFAULT_FORMULA).then((varState) => {
-        this.registerVar(varState);
-      });
+  async getNextVarName(): Promise<string> {
+    return new Promise((res) => {
+      this.setState(({nextVarNum}) => {
+        const varName = `var${nextVarNum}`;
 
-      return {
-        variables: prev.variables.push(varName),
-        nextVarNum: prev.nextVarNum + 1,
-      };
+        res(varName);
+        return {
+          nextVarNum: nextVarNum + 1,
+        };
+      });
     });
   }
 
-  registerVar(varState: VariableState) {
-    this.setState(({currentPageVars}) => ({currentPageVars: currentPageVars.set(varState.id, varState)}));
+  async onAdd() {
+    console.log('onAdd() executing...');
+    const {createVariable} = this.props;
+    const {currentPage} = this.state;
+    if (currentPage === null) {
+      console.warn('var added before page loaded.');
+      return;
+    }
+
+    const varName = await this.getNextVarName();
+    createVariable(currentPage, varName, DEFAULT_FORMULA).then((varState) => {
+      this.reloadPageVars();
+    });
   }
 
   async handleVarChanged(varId: string, formula: string): Promise<void> {
-    const varState = await this.props.updateVariable(varId, formula);
+    await this.props.updateVariable(varId, formula);
 
-    this.registerVar(varState);
+    this.reloadPageVars();
   }
 
   async handleVarRenamed(varId: string, name: string): Promise<void> {
     try {
-      const varState = await this.props.renameVariable(varId, name);
+      await this.props.renameVariable(varId, name);
 
-      this.registerVar(varState);
+      this.reloadPageVars();
     } catch (e) {
       console.error(e);
       alert('error renaming var: ' + e);
     }
   }
 
+  async handlePageOpened(pageId: string) {
+    this.setState({currentPage: pageId}, () => {
+      this.reloadPageVars();
+    });
+  }
+
+  async reloadPageVars() {
+    // Load page variables
+    const {getPageVariables} = this.props;
+    const {currentPage} = this.state;
+
+    if (currentPage === null) {
+      return;
+    }
+
+    const vars = await getPageVariables(currentPage);
+    const varMap = vars.toMap().mapKeys((_, v) => v.id);
+    this.setState({currentPageVars: varMap});
+  }
+
   render() {
     const {updateVariable} = this.props;
-    const {online, variables, currentPageVars} = this.state;
+    const {online, currentPage, currentPageVars} = this.state;
+    if (currentPage === null) {
+      return (<LoadingScreen />);
+    }
 
     return (
       <MainScreen
-        onAdd={() => this.onAdd()}
-        onChange={(id, formula) => this.handleVarChanged(id, formula)}
-        onRename={(id, name) => this.handleVarRenamed(id, name)}
         title="Messy"
         online={online}
-        variables={List(currentPageVars.values()).toArray()} />
+        currentPage={currentPage}
+        pages={List()}
+        variables={List(currentPageVars.values())}
+        onAddVar={() => this.onAdd()}
+        onOpenPage={(pageId) => this.handlePageOpened(pageId)}
+        onVarChange={(id, formula) => this.handleVarChanged(id, formula)}
+        onVarRename={(id, name) => this.handleVarRenamed(id, name)} />
     );
   }
 }
