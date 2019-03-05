@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+import {createSession, getSession} from './sessions';
 import {createVariable, renameVariable, updateVariable, getVariables} from './variables';
 import {executeFormula} from './resolver';
 import {Result} from './domain/resolver';
@@ -13,11 +14,11 @@ class ChalkClient {
   }
 
   createSession(): Promise<Session> {
-    return Promise.reject('not implemented.');
+    return createSession(this.apiUrl);
   }
 
-  getSession(session_id: string): Promise<Session> {
-    return Promise.reject('not implemented.');
+  getSession(sessionId: string): Promise<Session | null> {
+    return getSession(this.apiUrl, sessionId);
   }
 
   createVariable(varName: string, formula: string): Promise<VariableState> {

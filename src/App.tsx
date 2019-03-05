@@ -51,6 +51,9 @@ class App extends Component<AppProps, AppState> {
     }).catch(() => {
       this.setState({online: false});
     });
+
+    // We initialise sessions within the App component because we don't want to block first render.
+    this.initSession();
   }
 
   onAdd() {
