@@ -44,7 +44,9 @@ const ResultDisplay = ({result}: PropsType) => {
 
       content = (
         <table className="ResultDisplay-record">
-          {propRows}
+          <tbody>
+            {propRows}
+          </tbody>
         </table>
       );
       break;
