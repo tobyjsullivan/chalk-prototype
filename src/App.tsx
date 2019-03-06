@@ -7,8 +7,10 @@ import LoadingScreen from './ui/LoadingScreen';
 import './App.css';
 
 const DEFAULT_FORMULA = '"Tap Here"';
+const PAGE_PATH_REGEXP = /^\/([a-fA-F0-9-]+)$/;
 
 interface AppProps {
+  currentPath: string,
   checkConnection: () => Promise<any>,
   getSession: () => Promise<SessionState>,
   getPageVariables: (pageId: string) => Promise<List<VariableState>>,
@@ -19,7 +21,7 @@ interface AppProps {
 
 interface AppState {
   online: boolean | null,
-  currentPage: string | null,
+  currentPage: PageState | null,
   nextVarNum: number,
   session: SessionState | null,
   currentPageVars: Map<string, VariableState>,
@@ -30,26 +32,55 @@ class App extends Component<AppProps, AppState> {
     super(props);
   }
 
-  state = {
+  state: AppState = {
     online: null,
     currentPage: null,
-    variables: List<string>(),
     nextVarNum: 1,
     session: null,
     currentPageVars: Map<string, VariableState>(),
   }
 
   async initSession() {
-    const {getSession} = this.props;
+    const {getSession, currentPath} = this.props;
     const session = await getSession();
     this.setState({session});
+
+    if (PAGE_PATH_REGEXP.test(currentPath)) {
+      const match = PAGE_PATH_REGEXP.exec(currentPath);
+      if (match === null) {
+        alert('page not found');
+        this.openDefaultPage();
+        return;
+      }
+
+      const pageId = match[1];
+      this.openPage(pageId)
+    } else {
+      this.openDefaultPage();
+    }
+  }
+
+  openPage(pageId: string) {
+    // TODO (toby): Fetch actual page
+    const page = {
+      id: pageId,
+    };
+
+    this.handlePageOpened(page);
+  }
+
+  openDefaultPage() {
+    const {session} = this.state;
+    if (session === null) {
+      return;
+    }
 
     const defaultPage = session.pages.first(null);
     if (defaultPage === null) {
       return;
     }
 
-    this.handlePageOpened(defaultPage.id);
+    this.handlePageOpened(defaultPage);
   }
 
   componentDidMount() {
@@ -88,7 +119,7 @@ class App extends Component<AppProps, AppState> {
     }
 
     const varName = await this.getNextVarName();
-    createVariable(currentPage, varName, DEFAULT_FORMULA).then((varState) => {
+    createVariable(currentPage.id, varName, DEFAULT_FORMULA).then((varState) => {
       this.reloadPageVars();
     });
   }
@@ -110,8 +141,8 @@ class App extends Component<AppProps, AppState> {
     }
   }
 
-  async handlePageOpened(pageId: string) {
-    this.setState({currentPage: pageId}, () => {
+  async handlePageOpened(page: PageState) {
+    this.setState({currentPage: page}, () => {
       this.reloadPageVars();
     });
   }
@@ -125,7 +156,7 @@ class App extends Component<AppProps, AppState> {
       return;
     }
 
-    const vars = await getPageVariables(currentPage);
+    const vars = await getPageVariables(currentPage.id);
     const varMap = vars.toMap().mapKeys((_, v) => v.id);
     this.setState({currentPageVars: varMap});
   }
@@ -147,7 +178,7 @@ class App extends Component<AppProps, AppState> {
           pages={List()}
           variables={List(currentPageVars.values())}
           onAddVar={() => this.onAdd()}
-          onOpenPage={(pageId) => this.handlePageOpened(pageId)}
+          onOpenPage={(pageId) => this.openPage(pageId)}
           onVarChange={(id, formula) => this.handleVarChanged(id, formula)}
           onVarRename={(id, name) => this.handleVarRenamed(id, name)} />
       );

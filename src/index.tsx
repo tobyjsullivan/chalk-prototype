@@ -16,8 +16,13 @@ if ('ontouchstart' in document.documentElement) {
 
 const chalk = new ChalkClient(API_URL);
 
+function getCurrentPath(): string {
+  return document.location.pathname;
+}
+
 ReactDOM.render(
   <App
+    currentPath={getCurrentPath()}
     checkConnection={() => chalk.checkConnection()}
     createVariable={(pageId, name, formula) => chalk.createVariable(pageId, name, formula)}
     updateVariable={(id, formula) => chalk.updateVariable(id, formula)}
